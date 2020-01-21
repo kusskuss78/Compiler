@@ -6,7 +6,7 @@ export class Grammar {
         var input: string[] = Gram.split("\n");
         
         for (var i = 0; i < input.length; i++) {
-            
+            //
         }
 
        
