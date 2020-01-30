@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
-    "noEmitOnError": true,
-    "lib": [ "es2017", "dom" ],
-    "noImplicitAny": true,
-    "moduleResolution": "Classic"
+    "module": "commonjs",
+    "target": "es6",
+    "lib": ["es6"],
+    "sourceMap": true
   },
-  "include": [ "*.ts" ]
+  "exclude": [
+    "node_modules"
+  ]
 }
