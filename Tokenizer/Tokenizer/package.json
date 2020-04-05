@@ -1,7 +1,7 @@
 {
-  "name": "test",
+  "name": "tokenizer",
   "version": "0.0.0",
-  "description": "Test",
+  "description": "Tokenizer",
   "main": "app.js",
   "author": {
     "name": ""
