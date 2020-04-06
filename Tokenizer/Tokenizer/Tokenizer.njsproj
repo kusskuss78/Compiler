@@ -38,13 +38,10 @@
     <TypeScriptCompile Include="Grammar.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="Node.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="testharness.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="Token.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="Tokenizer.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
   </ItemGroup>
