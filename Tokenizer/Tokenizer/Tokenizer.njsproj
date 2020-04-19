@@ -37,6 +37,10 @@
     <Content Include="tsconfig.json" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="ASM.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="exetools.ts" />
     <TypeScriptCompile Include="Grammar.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
