@@ -79,8 +79,8 @@ class Grammar {
         this.dfs(start, used);
         if (s !== undefined) {
             s.forEach(def => {
-                if (!used.has(def))
-                    throw new Error(def + " was defined but is not used");
+                if (!used.has(def)) { }
+                //throw new Error(def + " was defined but is not used");
             });
         }
         if (used != undefined) {
