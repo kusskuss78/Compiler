@@ -6,6 +6,7 @@ class Grammar {
         this.terminals = [];
         this.nonTerminals = [];
         this.nullable = new Set();
+        this.First = new Map();
         let s = new Set();
         var input = Gram.split("\n");
         let terms = [];
@@ -91,16 +92,64 @@ class Grammar {
                 //throw new Error(v + " is used but is not defined");
             });
         }
+        this.getNullable();
         //let bar: Set<string> = new Set();
     }
+    getFirst() {
+        //console.log(this.nonTerminals);
+        let boo = false;
+        let num = 0;
+        this.terminals.forEach(t => {
+            this.First.set(t[0], new Set().add(t[0]));
+        });
+        console.log(this.First);
+        while (true) {
+            boo = false;
+            this.nonTerminals.forEach(n => {
+                let productions = n[1].split("|");
+                productions.forEach(pro => {
+                    let l = pro.replace("lambda", " ");
+                    let p = l.trim().split(" ");
+                    for (let i = 0; i < p.length; i++) {
+                        let v = p[i];
+                        let tmp = new Set();
+                        let tmp2 = new Set();
+                        if (this.First.get(n[0]) !== undefined) {
+                            tmp = this.First.get(n[0]);
+                        }
+                        if (this.First.get(v) !== undefined) {
+                            tmp2 = this.First.get(v);
+                        }
+                        tmp2.forEach(tmp.add, tmp);
+                        let old = this.First.size;
+                        this.First.set(n[0], tmp);
+                        if (this.First.size !== old) {
+                            boo = true;
+                        }
+                        if (!this.nullable.has(v)) {
+                            break;
+                        }
+                    }
+                });
+            });
+            if (!boo) {
+                num++;
+                if (num > this.nonTerminals.length + this.terminals.length) {
+                    break;
+                }
+            }
+        }
+        return this.First;
+    }
     getNullable() {
+        console.log(this.terminals);
         this.nullable = new Set();
         let bool;
         //console.log(this.nonTerminals);
         while (true) {
             bool = true;
             this.nonTerminals.forEach(e => {
-                console.log(e);
+                //console.log(e);
                 if (!this.nullable.has(e[0])) {
                     let productions = e[1].split("|");
                     //console.log(productions);

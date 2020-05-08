@@ -4,10 +4,11 @@ export class Grammar {
     terminals: [string, RegExp][] = [];
     nonTerminals: [string, string][] = [];
     nullable: Set<string> = new Set();
+    First: Map<string, Set<string>> = new Map();
     constructor(Gram: string) {
         let s: Set<string> = new Set();
         var input = Gram.split("\n");
-        let terms: string [] = [];
+        let terms: string[] = [];
         let nonTerms: string[] = [];
         let isTerm: boolean = true;
         input.forEach(e => {
@@ -38,10 +39,10 @@ export class Grammar {
             else if (ID[0] == "")
                 throw new Error("Empty ID");
             if (s.has(ID[1])) {
-                
-                throw new Error("Regex already created");  
+
+                throw new Error("Regex already created");
             }
-                
+
             else if (ID[1] == "")
                 throw new Error("Empty Regex");
             try {
@@ -63,10 +64,10 @@ export class Grammar {
                 throw new Error("No junction");
             }
             var ID = nonTerms[i].split(" -> ");
-           
+
             if (ID[0] == "")
                 throw new Error("Empty ID");
-            else if (ID[1]=="")
+            else if (ID[1] == "")
                 throw new Error("Empty nonterminal");
 
             //console.log(this.nonTerminals);
@@ -82,35 +83,83 @@ export class Grammar {
             //console.log(s);
             this.nonTerminals[i] = [ID[0], ID[1]];
         }
-        
+
         let used: Set<string> = new Set();
         let start: NodeType = new NodeType("expr");
         this.dfs(start, used);
         if (s !== undefined) {
             s.forEach(def => {
-                if (!used.has(def)) {}
-                    //throw new Error(def + " was defined but is not used");
+                if (!used.has(def)) { }
+                //throw new Error(def + " was defined but is not used");
 
             });
         }
         if (used != undefined) {
             used.forEach(v => {
-                if (v !== '' && !s.has(v)) {}
-                    //throw new Error(v + " is used but is not defined");
+                if (v !== '' && !s.has(v)) { }
+                //throw new Error(v + " is used but is not defined");
             })
         }
-        
+        this.getNullable();
         //let bar: Set<string> = new Set();
     }
-    
+    getFirst() {
+        //console.log(this.nonTerminals);
+
+        let boo = false;
+        let num = 0;
+        
+        this.terminals.forEach(t => {
+            this.First.set(t[0], new Set<string>().add(t[0]));
+        });
+        //console.log(this.First);
+        while (true) {
+            boo = false;
+            this.nonTerminals.forEach(n => {
+                let productions = n[1].split("|");
+                productions.forEach(pro => {
+                    let l = pro.replace("lambda", " ");
+                    let p = l.trim().split(" ");
+                    for (let i = 0; i < p.length; i++) {
+                        let v = p[i];
+                        let tmp = new Set<string>();
+                        let tmp2 = new Set<string>();
+                        if (this.First.get(n[0]) !== undefined) {
+                            tmp = this.First.get(n[0]);
+                        }
+                        if (this.First.get(v) !== undefined) {
+                            tmp2 = this.First.get(v)
+                        }
+                        tmp2.forEach(tmp.add, tmp);
+                        let old = this.First.size;
+                        this.First.set(n[0], tmp);
+                        if (this.First.size !== old) {
+                            boo = true;
+                        }
+                        if (!this.nullable.has(v)) {
+                            break;
+                        }
+                    }
+                });
+            });
+            if (!boo) {
+                num++;
+                if (num > this.nonTerminals.length + this.terminals.length) {
+                    break;
+                }
+            }
+        }
+        return this.First;
+    }
     getNullable() {
+        console.log(this.terminals);
         this.nullable = new Set();
         let bool;
         //console.log(this.nonTerminals);
         while (true) {
             bool = true;
             this.nonTerminals.forEach(e => {
-                console.log(e);
+                //console.log(e);
                 if (!this.nullable.has(e[0])) {
                     let productions = e[1].split("|");
                     //console.log(productions);
@@ -132,28 +181,28 @@ export class Grammar {
         return this.nullable;
     }
     dfs(node: NodeType, used: Set<string>) {
-    used.add(node.label);
-    const found = this.nonTerminals.find(nt => nt[0] === node.label);
-    if (found !== undefined) {
-        let str = found[1];
-        str = str.replace('|', '');
-        str = str.replace(',', ' ');
-        str.split(new RegExp('\\b')).forEach(t => {
-            let tmp = t.trim();
-            if (tmp !== '') {
-                let newNode: NodeType = new NodeType(tmp);
-                node.n.push(newNode);
-            }
-        });
+        used.add(node.label);
+        const found = this.nonTerminals.find(nt => nt[0] === node.label);
+        if (found !== undefined) {
+            let str = found[1];
+            str = str.replace('|', '');
+            str = str.replace(',', ' ');
+            str.split(new RegExp('\\b')).forEach(t => {
+                let tmp = t.trim();
+                if (tmp !== '') {
+                    let newNode: NodeType = new NodeType(tmp);
+                    node.n.push(newNode);
+                }
+            });
+        }
+        if (node.n !== undefined) {
+            node.n.forEach((t: NodeType) => {
+                if (!used.has(t.label)) {
+                    this.dfs(t, used);
+                }
+            });
+        }
     }
-    if (node.n !== undefined) {
-        node.n.forEach((t: NodeType) => {
-            if (!used.has(t.label)) {
-                this.dfs(t, used);
-            }
-        });
-    }
-}
 
 }
 
