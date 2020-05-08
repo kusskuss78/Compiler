@@ -4,8 +4,10 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <Name>Tokenizer</Name>
     <RootNamespace>Tokenizer</RootNamespace>
-    <Environment>NODE_PATH=.</Environment>
     <SaveNodeJsSettingsInProjectFile>True</SaveNodeJsSettingsInProjectFile>
+    <NodeExePath>
+    </NodeExePath>
+    <Environment>NODE_PATH=.</Environment>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -31,7 +33,7 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="gramLexer.js" />
+    <Content Include="inputs.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Content Include="tests.txt" />
@@ -39,19 +41,17 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="ASM.ts" />
+    <TypeScriptCompile Include="exetools.ts" />
     <TypeScriptCompile Include="Grammar.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="Node.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="Parser.ts" />
     <TypeScriptCompile Include="shuntingyard.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="testharness.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
+    <TypeScriptCompile Include="testharness.ts" />
     <TypeScriptCompile Include="Token.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
