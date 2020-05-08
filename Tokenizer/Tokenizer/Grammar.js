@@ -7,6 +7,7 @@ class Grammar {
         this.nonTerminals = [];
         this.nullable = new Set();
         this.First = new Map();
+        this.Follow = new Map();
         let s = new Set();
         var input = Gram.split("\n");
         let terms = [];
@@ -93,6 +94,7 @@ class Grammar {
             });
         }
         this.getNullable();
+        this.getFirst();
         //let bar: Set<string> = new Set();
     }
     getFirst() {
@@ -102,7 +104,7 @@ class Grammar {
         this.terminals.forEach(t => {
             this.First.set(t[0], new Set().add(t[0]));
         });
-        console.log(this.First);
+        //console.log(this.First);
         while (true) {
             boo = false;
             this.nonTerminals.forEach(n => {
@@ -141,8 +143,71 @@ class Grammar {
         }
         return this.First;
     }
+    getFollow() {
+        this.Follow.set(this.nonTerminals[0][0], new Set("$"));
+        let bool = false;
+        let num = 0;
+        while (true) {
+            bool = false;
+            this.nonTerminals.forEach(n => {
+                let productions = n[1].split("|");
+                productions.forEach(pro => {
+                    //let l = pro.replace("lambda", " ");
+                    let p = pro.trim().split(" ");
+                    for (let i = 0; i < p.length; i++) {
+                        let v = p[i];
+                        let f = this.nonTerminals.find(e => e[0] === v);
+                        if (f !== undefined) {
+                            let old = this.Follow.size;
+                            let bool2 = false;
+                            for (let j = i + 1; j < p.length; j++) {
+                                let k = p[j];
+                                let tmp = new Set();
+                                let tmp2 = new Set();
+                                if (this.Follow.get(v) !== undefined) {
+                                    tmp = this.Follow.get(v);
+                                }
+                                if (this.First.get(k) !== undefined) {
+                                    tmp2 = this.First.get(k);
+                                }
+                                tmp2.forEach(tmp.add, tmp);
+                                this.Follow.set(v, tmp);
+                                if (!this.nullable.has(k)) {
+                                    bool2 = true;
+                                    break;
+                                }
+                            }
+                            if (!bool2) {
+                                let tmp = new Set();
+                                let tmp2 = new Set();
+                                if (this.Follow.get(n[0]) !== undefined) {
+                                    tmp = this.Follow.get(n[0]);
+                                }
+                                if (this.Follow.get(v) !== undefined) {
+                                    tmp2 = this.Follow.get(v);
+                                }
+                                tmp.forEach(tmp2.add, tmp2);
+                                this.Follow.set(v, tmp2);
+                                bool2 = false;
+                            }
+                            if (this.Follow.size !== old) {
+                                bool = true;
+                            }
+                        }
+                    }
+                });
+            });
+            if (!bool) {
+                num++;
+                if (num > this.nonTerminals.length + this.terminals.length) {
+                    break;
+                }
+            }
+        }
+        return this.Follow;
+    }
     getNullable() {
-        console.log(this.terminals);
+        //console.log(this.terminals);
         this.nullable = new Set();
         let bool;
         //console.log(this.nonTerminals);

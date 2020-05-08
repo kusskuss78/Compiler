@@ -5,6 +5,7 @@ export class Grammar {
     nonTerminals: [string, string][] = [];
     nullable: Set<string> = new Set();
     First: Map<string, Set<string>> = new Map();
+    Follow: Map<string, Set<string>> = new Map();
     constructor(Gram: string) {
         let s: Set<string> = new Set();
         var input = Gram.split("\n");
@@ -101,6 +102,7 @@ export class Grammar {
             })
         }
         this.getNullable();
+        this.getFirst();
         //let bar: Set<string> = new Set();
     }
     getFirst() {
@@ -151,8 +153,74 @@ export class Grammar {
         }
         return this.First;
     }
+    getFollow() {
+        this.Follow.set(this.nonTerminals[0][0], new Set<string>("$"));
+        let bool = false;
+        let num = 0;
+        while (true) {
+            bool = false;
+            this.nonTerminals.forEach(n => {
+                let productions = n[1].split("|");
+                productions.forEach(pro => {
+                    //let l = pro.replace("lambda", " ");
+                    let p = pro.trim().split(" ");
+                    for (let i = 0; i < p.length; i++) {
+                        let v = p[i];
+                        let f = this.nonTerminals.find(e => e[0] === v);
+                        if (f !== undefined) {
+                            let old = this.Follow.size;
+                            let bool2 = false;
+
+                            for (let j = i + 1; j < p.length; j++) {
+                                let k = p[j];
+                                let tmp = new Set<string>();
+                                let tmp2 = new Set<string>();
+                                if (this.Follow.get(v) !== undefined) {
+                                    tmp = this.Follow.get(v);
+                                }
+                                if (this.First.get(k) !== undefined) {
+                                    tmp2 = this.First.get(k)
+                                }
+                                tmp2.forEach(tmp.add, tmp);
+                                this.Follow.set(v, tmp);
+                                if (!this.nullable.has(k)) {
+                                    bool2 = true;
+                                    break;
+                                }
+
+                            }
+                            if (!bool2) {
+                                let tmp = new Set<string>();
+                                let tmp2 = new Set<string>();
+                                if (this.Follow.get(n[0]) !== undefined) {
+                                    tmp = this.Follow.get(n[0]);
+                                }
+                                if (this.Follow.get(v) !== undefined) {
+                                    tmp2 = this.Follow.get(v)
+                                }
+                                tmp.forEach(tmp2.add, tmp2);
+                                this.Follow.set(v, tmp2);
+                                bool2 = false;
+                            }
+                            if (this.Follow.size !== old) {
+                                bool = true;
+                            }
+                        }
+
+                    }
+                });
+            });
+            if (!bool) {
+                num++;
+                if (num > this.nonTerminals.length + this.terminals.length) {
+                    break;
+                }
+            }
+        }
+        return this.Follow;
+    }
     getNullable() {
-        console.log(this.terminals);
+        //console.log(this.terminals);
         this.nullable = new Set();
         let bool;
         //console.log(this.nonTerminals);
@@ -180,6 +248,7 @@ export class Grammar {
         //console.log(this.nullable);
         return this.nullable;
     }
+    
     dfs(node: NodeType, used: Set<string>) {
         used.add(node.label);
         const found = this.nonTerminals.find(nt => nt[0] === node.label);
